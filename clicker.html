@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Clicker</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+  <!-- Engine-specific Code -->
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+
+  <!-- Game-specific Code -->
+
+
+
+  <script>
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new ScoreGameObject(), new Vector2(10, 20))
+        this.instantiate(new TargetGameObject())
+        this.instantiate(new CookieGeneratorGameObject())
+
+      }
+    }
+
+    class ScoreGameObject extends GameObject {
+      constructor() {
+        super("Score Game Object")
+        this.addComponent(new Text, { text: "Score: 0", fontSize: 10, fontName: "Arial", fillStyle: "white" })
+        this.addComponent(new ScoreController())
+        this.transform.scale = new Vector2(2, 2)
+      }
+    }
+
+    class ScoreController extends Component{
+      score = 0
+      update(){
+        this.gameObject.getComponent(Text).text  = "Score: " + this.score
+      }
+    }
+
+    class TargetGameObject extends GameObject {
+      constructor() {
+        super("Target Game Object")
+        this.addComponent(new Polygon(), { points: [new Vector2(-1, -1), new Vector2(0, 1), new Vector2(1, -1)], fillStyle: "transparent" })
+        this.addComponent(new MouseFollower())
+      }
+    }
+
+    class MouseFollower extends Component {
+      update() {
+        if (Input.mousePosition)
+          this.transform.position = Input.mousePosition.clone()
+
+        if(Input.mouseButtonsDown.includes(0)){
+          //Check for collisions
+          const cookieGameObjects = GameObject.findAll("Cookie Game Object")
+          for(const cookieGameObject of cookieGameObjects){
+            if(Collisions.inCollision(this.gameObject, cookieGameObject)){
+              destroy(cookieGameObject)
+              GameObject.find("Score Game Object").getComponent(ScoreController).score++
+
+            }
+          }
+        }
+        
+      }
+    }
+
+    class CookieGeneratorGameObject extends GameObject{
+      constructor(){
+        super("Cookie Generator Game Object")
+        this.addComponent(new CookieCreator())
+      }
+    }
+
+    class CookieCreator extends Component{
+      update(){
+        if(Math.random() < .01){
+          Engine.currentScene.instantiate(new CookieGameObject(), new Vector2(Math.random()*200+100, Math.random()*200+100))
+        }
+      }
+    }
+
+    class CookieGameObject extends GameObject{
+      constructor(){
+        super("Cookie Game Object")
+        this.addComponent(new Polygon(), {fillStyle: "white", points:[new Vector2(-1, -1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(1, -1)]})
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+
+
+
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>
