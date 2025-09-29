@@ -53,60 +53,59 @@
       }
     }
 
-    class ScoreController extends Component{
+    class ScoreController extends Component {
       score = 0
-      update(){
-        this.gameObject.getComponent(Text).text  = "Score: " + this.score
+      update() {
+        this.gameObject.getComponent(Text).text = "Score: " + this.score
       }
     }
 
     class TargetGameObject extends GameObject {
       constructor() {
         super("Target Game Object")
-        this.addComponent(new Polygon(), { points: [new Vector2(-1, -1), new Vector2(0, 1), new Vector2(1, -1)], fillStyle: "transparent" })
+        this.addComponent(new Polygon(), { points: [new Vector2(-1, -1), new Vector2(0, 1), new Vector2(1, -1)], fillStyle: "magenta" })
         this.addComponent(new MouseFollower())
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(10, 10)
+
       }
     }
 
     class MouseFollower extends Component {
       update() {
-        if (Input.mousePosition)
-          this.transform.position = Input.mousePosition.clone()
-
-        if(Input.mouseButtonsDown.includes(0)){
-          //Check for collisions
-          const cookieGameObjects = GameObject.findAll("Cookie Game Object")
-          for(const cookieGameObject of cookieGameObjects){
-            if(Collisions.inCollision(this.gameObject, cookieGameObject)){
-              destroy(cookieGameObject)
-              GameObject.find("Score Game Object").getComponent(ScoreController).score++
-
-            }
-          }
-        }
+        if(!Input.mousePosition || !Input.mousePosition.x) return
         
+        this.transform.position = Input.mousePosition.clone()
+
+      }
+      onCollisionEnter(other){
+        if(other.name == "Cookie Game Object" && Input.mouseButtonsDown.includes(0)){
+          destroy(other)
+          GameObject.find("Score Game Object").getComponent(ScoreController).score++
+        }
       }
     }
 
-    class CookieGeneratorGameObject extends GameObject{
-      constructor(){
+    class CookieGeneratorGameObject extends GameObject {
+      constructor() {
         super("Cookie Generator Game Object")
         this.addComponent(new CookieCreator())
       }
     }
 
-    class CookieCreator extends Component{
-      update(){
-        if(Math.random() < .01){
-          Engine.currentScene.instantiate(new CookieGameObject(), new Vector2(Math.random()*200+100, Math.random()*200+100))
+    class CookieCreator extends Component {
+      update() {
+        if (Math.random() < .02) {
+          instantiate(new CookieGameObject(), new Vector2(Math.random() * 200 + 100, Math.random() * 200 + 100))
         }
       }
     }
 
-    class CookieGameObject extends GameObject{
-      constructor(){
+    class CookieGameObject extends GameObject {
+      constructor() {
         super("Cookie Game Object")
-        this.addComponent(new Polygon(), {fillStyle: "white", points:[new Vector2(-1, -1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(1, -1)]})
+        this.addComponent(new Polygon(), { fillStyle: "white", points: [new Vector2(-1, -1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(1, -1)] })
+        this.addComponent(new Collider())
         this.transform.scale = new Vector2(20, 20)
       }
     }

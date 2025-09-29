@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Ball Drop</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+  <!-- Engine-specific Code -->
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+
+  <!-- Game-specific Code -->
+
+
+
+  <script>
+
+    class Assets{
+      static circlePoints = [
+          new Vector2(Math.cos(0x0/16*Math.PI*2), Math.sin(0x0/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x1/16*Math.PI*2), Math.sin(0x1/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x2/16*Math.PI*2), Math.sin(0x2/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x3/16*Math.PI*2), Math.sin(0x3/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x4/16*Math.PI*2), Math.sin(0x4/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x5/16*Math.PI*2), Math.sin(0x5/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x6/16*Math.PI*2), Math.sin(0x6/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x7/16*Math.PI*2), Math.sin(0x7/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x8/16*Math.PI*2), Math.sin(0x8/16*Math.PI*2)), 
+          new Vector2(Math.cos(0x9/16*Math.PI*2), Math.sin(0x9/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xA/16*Math.PI*2), Math.sin(0xA/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xB/16*Math.PI*2), Math.sin(0xB/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xC/16*Math.PI*2), Math.sin(0xC/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xD/16*Math.PI*2), Math.sin(0xD/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xE/16*Math.PI*2), Math.sin(0xE/16*Math.PI*2)), 
+          new Vector2(Math.cos(0xF/16*Math.PI*2), Math.sin(0xF/16*Math.PI*2)), 
+          
+        ]
+    }
+
+    class RigidBody extends Component{
+      acceleration = new Vector2(0, 0)
+      velocity = new Vector2(0, 0)
+      gravity = new Vector2(0, 32)
+      update(){
+        this.velocity.plusEquals(this.acceleration.times(Time.deltaTime))
+        this.velocity.plusEquals(this.gravity.times(Time.deltaTime))
+        console.log(this.velocity)
+        this.transform.position.plusEquals(this.velocity.times(Time.deltaTime))
+      }
+    }
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new BallGameObject(), new Vector2(100, 20))
+      }
+    }
+
+    class BallGameObject extends GameObject {
+      constructor() {
+        super("Ball Game Object")
+        this.addComponent(new Polygon(), { points: Assets.circlePoints, fillStyle: "black" })
+        this.addComponent(new BallController())
+        this.addComponent(new RigidBody())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+    function lerp(a, b, p){
+      return (1-p)*a+p*b
+    }
+
+    class BallController extends Component {
+      start(){
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+      }
+      update() {
+        if(this.transform.position.y > 400){
+          this.rigidBody.velocity.y *= -.5
+          this.transform.scale.y = 10
+          this.transform.scale.x = 30
+        }
+        this.transform.scale.x = lerp(this.transform.scale.x, 20, .1)
+        this.transform.scale.y = lerp(this.transform.scale.y, 20, .1)
+      }
+    }
+
+    
+
+
+
+
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>

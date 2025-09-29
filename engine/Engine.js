@@ -5,9 +5,14 @@ class Engine {
         Engine.ctx = Engine.canvas.getContext("2d")
         addEventListener("keydown", Input.keydown)
         addEventListener("keyup", Input.keyup)
+
         addEventListener("mousedown", Input.mouseDown)
         addEventListener("mouseup", Input.mouseUp)
         addEventListener("mousemove", Input.mouseMove)
+
+        addEventListener("touchstart", Input.touchStart)
+        addEventListener("touchend", Input.touchEnd)
+        addEventListener("touchmove", Input.touchMove)
         //Game-specific
         Engine.currentScene.start()
         Engine.gameLoop()
@@ -34,7 +39,7 @@ class Engine {
         Engine.canvas.height = window.innerHeight
 
         //Game-specific
-        Engine.ctx.fillStyle = "black"
+        Engine.ctx.fillStyle = "gray"
         Engine.ctx.beginPath()
         Engine.ctx.rect(0, 0, Engine.canvas.width, Engine.canvas.height)
         Engine.ctx.fill()
