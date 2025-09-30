@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Platformer</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+  <!-- Engine-specific Code -->
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+
+  <!-- Game-specific Code -->
+
+
+
+  <script>
+
+    class Assets{
+      static rectangle = [
+          new Vector2(-1, -1), 
+          new Vector2(-1, 1), 
+          new Vector2(1, 1), 
+          new Vector2(1, -1), 
+          
+        ]
+    }
+
+    class RigidBody extends Component{
+      acceleration = new Vector2(0, 0)
+      velocity = new Vector2(0, 0)
+      gravity = new Vector2(0, 32)
+      update(){
+        this.velocity.plusEquals(this.acceleration.times(Time.deltaTime))
+        this.velocity.plusEquals(this.gravity.times(Time.deltaTime))
+        // console.log(this.velocity)
+        this.transform.position.plusEquals(this.velocity.times(Time.deltaTime))
+      }
+    }
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new PlatformGameObject(), new Vector2(100, 300))
+        this.instantiate(new PlatformGameObject(), new Vector2(225, 250))
+        this.instantiate(new PlayerGameObject(), new Vector2(100, 150))
+      }
+    }
+
+    class PlayerGameObject extends GameObject {
+      constructor() {
+        super("Player Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "black" })
+        this.addComponent(new PlayerController())
+        this.addComponent(new RigidBody())
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+    class PlatformGameObject extends GameObject {
+      constructor() {
+        super("Platform Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "white" })
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(100, 100)
+      }
+    }
+
+    function lerp(a, b, p){
+      return (1-p)*a+p*b
+    }
+
+    class PlayerController extends Component {
+      canJump = false
+      start(){
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+      }
+      update() {
+        this.rigidBody.velocity.x = 0
+        if(Input.keysDown.includes("ArrowLeft")){
+          this.rigidBody.velocity.x -= 10
+        }
+        if(Input.keysDown.includes("ArrowRight")){
+          this.rigidBody.velocity.x += 10
+        }
+        if(Input.keysDown.includes("ArrowUp") && this.canJump){
+          this.rigidBody.velocity.y -= 75
+        }
+
+        this.canJump = false
+      }
+      onCollisionEnter(other){
+        //Respond to the physics of the collision
+        const response = Collisions.calculateMTV(this.gameObject, other)
+        console.log(response)
+
+        const responseVector = response[0]
+        const responseVectorNormalized = responseVector.normalize()
+
+        const thisToThat = this.transform.position.minus(other.transform.position)
+
+
+        let responseAmount = response[1] / responseVector.magnitude
+        if(thisToThat.dot(responseVectorNormalized) < 0){
+          responseAmount *= -1
+        }
+        const combinedResponse = responseVectorNormalized.times(responseAmount)
+        this.transform.position.plusEquals(combinedResponse)
+
+        if(combinedResponse.dot(new Vector2(0, -1)) > 0){
+          this.canJump = true
+          this.rigidBody.velocity.y = 0
+        }
+
+
+
+      }
+    }
+
+    
+
+    
+
+
+
+
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>

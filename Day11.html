@@ -22,9 +22,11 @@
     <script src="./engine/Input.js"></script>
     <script src="./engine/Engine.js"></script>
     <script src="./engine/Time.js"></script>
+    <script src="./engine/Collisions.js"></script>
 
     <script src="./engine/components/Transform.js"></script>
     <script src="./engine/components/Polygon.js"></script>
+    <script src="./engine/components/Collider.js"></script>
 
     <!-- Game-specific Code -->
     <script src="./game/scenes/MainScene.js"></script>
@@ -39,6 +41,7 @@
     
     
     <script>
+        console.log("Hi There")
         Engine.currentScene = new MainScene()
         Engine.start()
     </script>

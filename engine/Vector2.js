@@ -83,4 +83,7 @@ class Vector2 {
     get magnitude(){
         return Math.sqrt(this.x**2+this.y**2)
     }
+    normalize(){
+        return new Vector2(this.x/this.magnitude, this.y/this.magnitude)
+    }
 }

@@ -14,4 +14,7 @@ class TriangleController extends Component {
             this.velocity.y *= -1 
         }
     }
+    onCollisionEnter(other){
+        destroy(this.gameObject)
+    }
 }

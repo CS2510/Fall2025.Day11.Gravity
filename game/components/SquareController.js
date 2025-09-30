@@ -12,7 +12,7 @@ class SquareController extends Component{
     update() {
         this.frame++
 
-        console.log(Input.keysDown)
+        // console.log(Input.keysDown)
 
         let proposedChange = Vector2.zero
 
@@ -30,7 +30,7 @@ class SquareController extends Component{
             proposedChange.plusEquals(Vector2.down)
         }
 
-        this.transform.position.plusEquals(proposedChange.times(Time.deltaTime*50))
+        this.transform.position.plusEquals(proposedChange.times(Time.deltaTime*250))
 
         if(this.frame >= this.nextFireFrame){
             if(this.nextRight){
