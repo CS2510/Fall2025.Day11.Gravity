@@ -27,15 +27,37 @@ class Scene {
 
         for (let i = 0; i < collidingGameObjects.length; i++) {
             for (let j = i + 1; j < collidingGameObjects.length; j++) {
-                if (Collisions.inCollision(collidingGameObjects[i], collidingGameObjects[j])) {
-                    // for (const component of collidingGameObjects[i].components) {
-                    //     component.onCollisionEnter?.(collidingGameObjects[j])
-                    // }
-                    // for (const component of collidingGameObjects[j].components) {
-                    //     component?.onCollisionEnter?.(collidingGameObjects[i])
-                    // }
-                    collidingGameObjects[i].broadcastMessage("onCollisionEnter", [collidingGameObjects[j]])
-                    collidingGameObjects[j].broadcastMessage("onCollisionEnter", [collidingGameObjects[i]])
+                const a = collidingGameObjects[i]
+                const b = collidingGameObjects[j]
+                let mtv = Collisions.inCollision(a, b)
+                if (mtv) {
+                    //Check if we need to do any collision response
+                    const aHasRigidBody = a.getComponent(RigidBody)
+                    const bHasRigidBody = b.getComponent(RigidBody)
+                    const aToB = a.transform.position.minus(b.transform.position).normalize()
+                    if (aHasRigidBody || bHasRigidBody) {
+                        let amount = 1
+                        if (aHasRigidBody && bHasRigidBody)
+                            amount = .5
+                        if (aHasRigidBody) {
+                            if (aToB.dot(mtv) < 0) {
+                                mtv = mtv.times(-1)
+                            }
+                            mtv = mtv.times(amount)
+                            a.transform.position.plusEquals(mtv)
+
+                        }
+                        if (bHasRigidBody) {
+                            //Notice the sign is different here
+                            if (aToB.dot(mtv) > 0) {
+                                mtv = mtv.times(-1)
+                            }
+                            mtv = mtv.times(amount)
+                            b.transform.position.plusEquals(mtv)
+                        }
+                    }
+                    a.broadcastMessage("onCollisionEnter", [b])
+                    b.broadcastMessage("onCollisionEnter", [a])
                 }
             }
         }
@@ -57,6 +79,6 @@ class Scene {
     }
 }
 
-function instantiate(gameObject, position){
+function instantiate(gameObject, position) {
     Engine.currentScene.instantiate(gameObject, position)
 }

@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Platformer</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+  <!-- Engine-specific Code -->
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+
+  <!-- Game-specific Code -->
+
+
+
+  <script>
+
+
+
+    class Assets {
+      static rectangle = [
+        new Vector2(-1, -1),
+        new Vector2(-1, 1),
+        new Vector2(1, 1),
+        new Vector2(1, -1),
+
+      ]
+      static circlePoints = [
+        new Vector2(Math.cos(0x0 / 16 * Math.PI * 2), Math.sin(0x0 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x1 / 16 * Math.PI * 2), Math.sin(0x1 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x2 / 16 * Math.PI * 2), Math.sin(0x2 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x3 / 16 * Math.PI * 2), Math.sin(0x3 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x4 / 16 * Math.PI * 2), Math.sin(0x4 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x5 / 16 * Math.PI * 2), Math.sin(0x5 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x6 / 16 * Math.PI * 2), Math.sin(0x6 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x7 / 16 * Math.PI * 2), Math.sin(0x7 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x8 / 16 * Math.PI * 2), Math.sin(0x8 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0x9 / 16 * Math.PI * 2), Math.sin(0x9 / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xA / 16 * Math.PI * 2), Math.sin(0xA / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xB / 16 * Math.PI * 2), Math.sin(0xB / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xC / 16 * Math.PI * 2), Math.sin(0xC / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xD / 16 * Math.PI * 2), Math.sin(0xD / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xE / 16 * Math.PI * 2), Math.sin(0xE / 16 * Math.PI * 2)),
+        new Vector2(Math.cos(0xF / 16 * Math.PI * 2), Math.sin(0xF / 16 * Math.PI * 2)),
+
+      ]
+    }
+
+    class RigidBody extends Component {
+      acceleration = new Vector2(0, 0)
+      velocity = new Vector2(0, 0)
+      gravity = new Vector2(0, 0)
+      update() {
+        const originalPosition = this.transform.position.clone()
+        this.velocity.plusEquals(this.acceleration.times(Time.deltaTime))
+        this.velocity.plusEquals(this.gravity.times(Time.deltaTime))
+        this.transform.position.plusEquals(this.velocity.times(Time.deltaTime))
+      }
+    }
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new PlayerGameObject(), new Vector2(100, 150))
+        this.instantiate(new PlatformGameObject(), new Vector2(100, 300))
+        // this.instantiate(new PlatformGameObject(), new Vector2(225, 275))
+        this.instantiate(new PlatformGameObject(), new Vector2(300, 275))
+      }
+    }
+
+    class PlayerGameObject extends GameObject {
+      constructor() {
+        super("Player Game Object")
+        this.addComponent(new Polygon(), { points: Assets.circlePoints, fillStyle: "black" })
+        this.addComponent(new PlayerController())
+        this.addComponent(new RigidBody())
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+    class PlatformGameObject extends GameObject {
+      constructor() {
+        super("Platform Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "white" })
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(100, 100)
+      }
+    }
+
+
+
+    class PlayerController extends Component {
+      canJump = false
+      velocity = 20
+      start() {
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+        // this.rigidBody.velocity = new Vector2(10, 10)
+      }
+      update() {
+        this.rigidBody.velocity.x = 0
+        this.rigidBody.velocity.y = 0
+        if (Input.keysDown.includes("ArrowLeft")) this.rigidBody.velocity.x = -this.velocity
+        if (Input.keysDown.includes("ArrowRight")) this.rigidBody.velocity.x = this.velocity
+        if (Input.keysDown.includes("ArrowUp")) this.rigidBody.velocity.y = -this.velocity
+        if (Input.keysDown.includes("ArrowDown")) this.rigidBody.velocity.y = this.velocity
+
+      }
+      onCollisionEnter(other) {
+        
+      }
+    }
+
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>

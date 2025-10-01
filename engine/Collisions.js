@@ -1,5 +1,5 @@
 class Collisions {
-  static inCollision(a, b) {
+  static oldInCollision(a, b) {
     //Get the points in the polygons on each game object
     const originalPointsA = a.getComponent(Polygon).points
     const originalPointsB = b.getComponent(Polygon).points
@@ -16,7 +16,7 @@ class Collisions {
       for (let i = 0; i < polygonPoints.length; i++) {
         const a = polygonPoints[i]
         const b = polygonPoints[(i+1)%polygonPoints.length]
-        lines.push(a.minus(b).orthogonal())
+        lines.push(a.minus(b).orthogonal().normalize)
       }
     }
 
@@ -33,7 +33,7 @@ class Collisions {
     //If we get here, then the polygons were always overlapping, so we know they are in collision
     return true
   }
-  static calculateMTV(a, b){
+  static inCollision(a, b){
     //Get the points in the polygons on each game object
     const originalPointsA = a.getComponent(Polygon).points
     const originalPointsB = b.getComponent(Polygon).points
@@ -50,12 +50,13 @@ class Collisions {
       for (let i = 0; i < polygonPoints.length; i++) {
         const a = polygonPoints[i]
         const b = polygonPoints[(i+1)%polygonPoints.length]
-        lines.push(a.minus(b).orthogonal())
+        lines.push(a.minus(b).orthogonal().normalize())
       }
     }
 
     //For each line...
     const overlap = []
+    
     for (const line of lines) {
       //...Find the dot product of all points in both polygons...
       const oneDots = worldPointsA.map(p => p.dot(line))
@@ -70,9 +71,10 @@ class Collisions {
     }
 
     //If we get here, then the polygons were always overlapping, so we know they are in collision
+    //Lets find the MTV, or the direction and distance that will separate them the easiest.
     const minOverlapValue = Math.min(...overlap)
     const indexOfMinOverlap = overlap.indexOf(minOverlapValue)
-    return [lines[indexOfMinOverlap], minOverlapValue]
+    return lines[indexOfMinOverlap].times(minOverlapValue)
 
   }
 }
