@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Platformer</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+  <!-- Engine-specific Code -->
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+  <script src="./engine/Assets.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+  <script src="./engine/components/RigidBody.js"></script>
+
+  <!-- Game-specific Code -->
+
+
+
+  <script>
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new PlatformGameObject(), new Vector2(100, 300))
+        this.instantiate(new PlatformGameObject(), new Vector2(225, 250))
+        this.instantiate(new PlayerGameObject(), new Vector2(100, 150))
+      }
+    }
+
+    class PlayerGameObject extends GameObject {
+      constructor() {
+        super("Player Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "gray" })
+        this.addComponent(new PlayerController())
+        this.addComponent(new RigidBody())
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+    class PlatformGameObject extends GameObject {
+      constructor() {
+        super("Platform Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "white" })
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(100, 100)
+      }
+    }
+
+    class PlayerController extends Component {
+      slideVelocity = 10
+      jumpVelocity = 300
+      terminalVelocity = 1000
+      start() {
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+        this.rigidBody.gravity.y = 512
+      }
+      update() {
+        this.rigidBody.velocity.x = 0
+        if (Input.keysDown.includes("ArrowLeft")) this.rigidBody.velocity.x = -this.slideVelocity
+        if (Input.keysDown.includes("ArrowRight")) this.rigidBody.velocity.x = this.slideVelocity
+        if (Input.keysDown.includes("ArrowUp") ) this.rigidBody.velocity.y = -this.jumpVelocity
+        if (this.rigidBody.velocity.y > this.terminalVelocity) this.rigidBody.velocity.y = this.terminalVelocity
+      }
+      
+    }
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>

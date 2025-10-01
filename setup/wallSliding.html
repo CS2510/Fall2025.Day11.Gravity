@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Wall Sliding</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+  <script src="./engine/Assets.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/Text.js"></script>
+  <script src="./engine/components/RigidBody.js"></script>
+
+  <script>
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new WallSlidingGameObject(), new Vector2(100, 150))
+        this.instantiate(new PlatformGameObject(), new Vector2(100, 300))
+        this.instantiate(new PlatformGameObject(), new Vector2(225, 275))
+      }
+    }
+
+    class WallSlidingGameObject extends GameObject {
+      constructor() {
+        super("Wall Sliding Game Object")
+        this.addComponent(new Polygon(), { points: Assets.circlePoints, fillStyle: "gray" })
+        this.addComponent(new WallSlidingController())
+        this.addComponent(new RigidBody())
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+    class PlatformGameObject extends GameObject {
+      constructor() {
+        super("Platform Game Object")
+        this.addComponent(new Polygon(), { points: Assets.rectangle, fillStyle: "white" })
+        this.addComponent(new Collider())
+        this.transform.scale = new Vector2(100, 100)
+      }
+    }
+
+    class WallSlidingController extends Component {
+      velocity = 20
+      start() {
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+      }
+      update() {
+        this.rigidBody.velocity.x = 0
+        this.rigidBody.velocity.y = 0
+        if (Input.keysDown.includes("ArrowLeft")) this.rigidBody.velocity.x = -this.velocity
+        if (Input.keysDown.includes("ArrowRight")) this.rigidBody.velocity.x = this.velocity
+        if (Input.keysDown.includes("ArrowUp")) this.rigidBody.velocity.y = -this.velocity
+        if (Input.keysDown.includes("ArrowDown")) this.rigidBody.velocity.y = this.velocity
+      }
+    }
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>
