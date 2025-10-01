@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Ball Drop</title>
+  <style>
+    * {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="canv"></canvas>
+
+  <script src="./engine/Vector2.js"></script>
+  <script src="./engine/Scene.js"></script>
+  <script src="./engine/GameObject.js"></script>
+  <script src="./engine/Component.js"></script>
+  <script src="./engine/Input.js"></script>
+  <script src="./engine/Engine.js"></script>
+  <script src="./engine/Collisions.js"></script>
+  <script src="./engine/Time.js"></script>
+
+  <script src="./engine/components/Transform.js"></script>
+  <script src="./engine/components/Polygon.js"></script>
+  <script src="./engine/components/Collider.js"></script>
+  <script src="./engine/components/RigidBody.js"></script>
+
+  <script>
+
+    class MainScene extends Scene {
+      constructor() {
+        super()
+        this.instantiate(new BallGameObject(), new Vector2(100, 20))
+      }
+    }
+
+    class BallGameObject extends GameObject {
+      constructor() {
+        super("Ball Game Object")
+        this.addComponent(new Polygon(), { points: [new Vector2(-1,-1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(1, -1)], fillStyle: "white" })
+        this.addComponent(new BallController())
+        this.addComponent(new RigidBody())
+        this.transform.scale = new Vector2(20, 20)
+      }
+    }
+
+   class BallController extends Component{
+    start(){
+        this.rigidBody = this.gameObject.getComponent(RigidBody)
+        this.rigidBody.velocity.y = 500
+    }
+    
+   }
+    
+
+
+
+
+
+    Engine.currentScene = new MainScene()
+    Engine.start()
+
+  </script>
+</body>
+
+</html>
