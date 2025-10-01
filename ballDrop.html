@@ -14,7 +14,7 @@
 
 <body>
   <canvas id="canv"></canvas>
-  <!-- Engine-specific Code -->
+
   <script src="./engine/Vector2.js"></script>
   <script src="./engine/Scene.js"></script>
   <script src="./engine/GameObject.js"></script>
@@ -23,51 +23,15 @@
   <script src="./engine/Engine.js"></script>
   <script src="./engine/Collisions.js"></script>
   <script src="./engine/Time.js"></script>
+  <script src="./engine/Assets.js"></script>
 
   <script src="./engine/components/Transform.js"></script>
   <script src="./engine/components/Polygon.js"></script>
   <script src="./engine/components/Collider.js"></script>
   <script src="./engine/components/Text.js"></script>
-
-  <!-- Game-specific Code -->
-
-
+  <script src="./engine/components/RigidBody.js"></script>
 
   <script>
-
-    class Assets{
-      static circlePoints = [
-          new Vector2(Math.cos(0x0/16*Math.PI*2), Math.sin(0x0/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x1/16*Math.PI*2), Math.sin(0x1/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x2/16*Math.PI*2), Math.sin(0x2/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x3/16*Math.PI*2), Math.sin(0x3/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x4/16*Math.PI*2), Math.sin(0x4/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x5/16*Math.PI*2), Math.sin(0x5/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x6/16*Math.PI*2), Math.sin(0x6/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x7/16*Math.PI*2), Math.sin(0x7/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x8/16*Math.PI*2), Math.sin(0x8/16*Math.PI*2)), 
-          new Vector2(Math.cos(0x9/16*Math.PI*2), Math.sin(0x9/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xA/16*Math.PI*2), Math.sin(0xA/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xB/16*Math.PI*2), Math.sin(0xB/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xC/16*Math.PI*2), Math.sin(0xC/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xD/16*Math.PI*2), Math.sin(0xD/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xE/16*Math.PI*2), Math.sin(0xE/16*Math.PI*2)), 
-          new Vector2(Math.cos(0xF/16*Math.PI*2), Math.sin(0xF/16*Math.PI*2)), 
-          
-        ]
-    }
-
-    class RigidBody extends Component{
-      acceleration = new Vector2(0, 0)
-      velocity = new Vector2(0, 0)
-      gravity = new Vector2(0, 32)
-      update(){
-        this.velocity.plusEquals(this.acceleration.times(Time.deltaTime))
-        this.velocity.plusEquals(this.gravity.times(Time.deltaTime))
-        console.log(this.velocity)
-        this.transform.position.plusEquals(this.velocity.times(Time.deltaTime))
-      }
-    }
 
     class MainScene extends Scene {
       constructor() {
@@ -93,6 +57,7 @@
     class BallController extends Component {
       start(){
         this.rigidBody = this.gameObject.getComponent(RigidBody)
+        this.rigidBody.gravity.y = 32
       }
       update() {
         if(this.transform.position.y > 400){

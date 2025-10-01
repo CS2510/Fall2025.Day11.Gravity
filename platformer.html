@@ -23,39 +23,19 @@
   <script src="./engine/Engine.js"></script>
   <script src="./engine/Collisions.js"></script>
   <script src="./engine/Time.js"></script>
+  <script src="./engine/Assets.js"></script>
 
   <script src="./engine/components/Transform.js"></script>
   <script src="./engine/components/Polygon.js"></script>
   <script src="./engine/components/Collider.js"></script>
   <script src="./engine/components/Text.js"></script>
+  <script src="./engine/components/RigidBody.js"></script>
 
   <!-- Game-specific Code -->
 
 
 
   <script>
-
-    class Assets{
-      static rectangle = [
-          new Vector2(-1, -1), 
-          new Vector2(-1, 1), 
-          new Vector2(1, 1), 
-          new Vector2(1, -1), 
-          
-        ]
-    }
-
-    class RigidBody extends Component{
-      acceleration = new Vector2(0, 0)
-      velocity = new Vector2(0, 0)
-      gravity = new Vector2(0, 32)
-      update(){
-        this.velocity.plusEquals(this.acceleration.times(Time.deltaTime))
-        this.velocity.plusEquals(this.gravity.times(Time.deltaTime))
-        // console.log(this.velocity)
-        this.transform.position.plusEquals(this.velocity.times(Time.deltaTime))
-      }
-    }
 
     class MainScene extends Scene {
       constructor() {
@@ -86,64 +66,30 @@
       }
     }
 
-    function lerp(a, b, p){
-      return (1-p)*a+p*b
-    }
-
     class PlayerController extends Component {
       canJump = false
-      start(){
+      slideVelocity = 10
+      jumpVelocity = 300
+      terminalVelocity = 1000
+      start() {
         this.rigidBody = this.gameObject.getComponent(RigidBody)
+        this.rigidBody.gravity.y = 512
       }
       update() {
         this.rigidBody.velocity.x = 0
-        if(Input.keysDown.includes("ArrowLeft")){
-          this.rigidBody.velocity.x -= 10
-        }
-        if(Input.keysDown.includes("ArrowRight")){
-          this.rigidBody.velocity.x += 10
-        }
-        if(Input.keysDown.includes("ArrowUp") && this.canJump){
-          this.rigidBody.velocity.y -= 75
-        }
-
+        if (Input.keysDown.includes("ArrowLeft")) this.rigidBody.velocity.x = -this.slideVelocity
+        if (Input.keysDown.includes("ArrowRight")) this.rigidBody.velocity.x = this.slideVelocity
+        if (Input.keysDown.includes("ArrowUp") && this.canJump) this.rigidBody.velocity.y = -this.jumpVelocity
+        if (this.rigidBody.velocity.y > this.terminalVelocity) this.rigidBody.velocity.y = this.terminalVelocity
         this.canJump = false
       }
-      onCollisionEnter(other){
-        //Respond to the physics of the collision
-        const response = Collisions.calculateMTV(this.gameObject, other)
-        console.log(response)
-
-        const responseVector = response[0]
-        const responseVectorNormalized = responseVector.normalize()
-
-        const thisToThat = this.transform.position.minus(other.transform.position)
-
-
-        let responseAmount = response[1] / responseVector.magnitude
-        if(thisToThat.dot(responseVectorNormalized) < 0){
-          responseAmount *= -1
-        }
-        const combinedResponse = responseVectorNormalized.times(responseAmount)
-        this.transform.position.plusEquals(combinedResponse)
-
-        if(combinedResponse.dot(new Vector2(0, -1)) > 0){
+      onCollisionEnter(other) {
+        if (other.transform.position.y - other.transform.scale.y <= this.transform.position.y + this.transform.scale.y) {
           this.canJump = true
           this.rigidBody.velocity.y = 0
         }
-
-
-
       }
     }
-
-    
-
-    
-
-
-
-
 
     Engine.currentScene = new MainScene()
     Engine.start()

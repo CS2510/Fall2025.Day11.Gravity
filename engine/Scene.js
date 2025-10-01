@@ -34,26 +34,20 @@ class Scene {
                     //Check if we need to do any collision response
                     const aHasRigidBody = a.getComponent(RigidBody)
                     const bHasRigidBody = b.getComponent(RigidBody)
-                    const aToB = a.transform.position.minus(b.transform.position).normalize()
                     if (aHasRigidBody || bHasRigidBody) {
+                        const aToB = a.transform.position.minus(b.transform.position).normalize()
                         let amount = 1
                         if (aHasRigidBody && bHasRigidBody)
                             amount = .5
-                        if (aHasRigidBody) {
-                            if (aToB.dot(mtv) < 0) {
-                                mtv = mtv.times(-1)
-                            }
-                            mtv = mtv.times(amount)
-                            a.transform.position.plusEquals(mtv)
 
+                        if (aHasRigidBody) {
+                            if (aToB.dot(mtv) < 0) mtv = mtv.times(-1)
+                            a.transform.position.plusEquals(mtv.times(amount))
                         }
                         if (bHasRigidBody) {
                             //Notice the sign is different here
-                            if (aToB.dot(mtv) > 0) {
-                                mtv = mtv.times(-1)
-                            }
-                            mtv = mtv.times(amount)
-                            b.transform.position.plusEquals(mtv)
+                            if (aToB.dot(mtv) > 0) mtv = mtv.times(-1)
+                            b.transform.position.plusEquals(mtv.times(amount))
                         }
                     }
                     a.broadcastMessage("onCollisionEnter", [b])
