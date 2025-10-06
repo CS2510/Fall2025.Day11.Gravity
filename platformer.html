@@ -84,7 +84,7 @@
                 this.canJump = false
             }
             onCollisionEnter(other) {
-                if (other.transform.position.y - other.transform.scale.y <= this.transform.position.y + this.transform.scale.y)
+                if (other.transform.position.y - other.transform.scale.y >= this.transform.position.y + this.transform.scale.y)
                     this.canJump = true
             }
 
@@ -95,5 +95,6 @@
 
     </script>
 </body>
+
 
 </html>
